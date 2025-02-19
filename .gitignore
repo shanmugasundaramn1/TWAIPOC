@@ -1,47 +1,47 @@
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-
-# Build outputs
-dist/
-build/
-out/
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# IDE - IntelliJ
+# IDE
 .idea/
+.vscode/
 *.iml
 *.iws
 *.ipr
 
+# Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend
+backend/build/
+backend/.gradle/
+backend/out/
+backend/target/
+backend/bin/
+backend/*.log
+backend/src/main/resources/application-local.yml
+
+# Docker
+docker/data/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test
 coverage/
 .nyc_output/
-
-# Temporary files
-*.swp
-*.swo
-*~
