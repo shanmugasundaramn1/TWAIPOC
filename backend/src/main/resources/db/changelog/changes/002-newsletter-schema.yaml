@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: "002"
+      author: newsletter-dashboard
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE newsletter (
+                id BIGSERIAL PRIMARY KEY,
+                newsletter_id VARCHAR(50) NOT NULL,
+                newsletter_name VARCHAR(255) NOT NULL,
+                partner_name VARCHAR(255) NOT NULL,
+                pal_date DATE NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT uk_newsletter_business_id UNIQUE (newsletter_id)
+              );
