@@ -12,32 +12,41 @@ A dashboard application for tracking and displaying newsletter metrics.
 
 - Node.js (v18 or later)
 - Java 17
-- Docker and Docker Compose
+- Colima (alternative to Docker Desktop)
 - Gradle (install via `brew install gradle` on macOS)
 
 ## Setup
 
-1. Install Gradle (macOS):
+1. Install required tools (macOS):
 ```bash
+# Install Gradle
 brew install gradle
+
+# Install Colima and Docker CLI tools
+brew install colima docker docker-compose
 ```
 
-2. Install root project dependencies:
+2. Start Colima:
+```bash
+npm run colima:start
+```
+
+3. Install root project dependencies:
 ```bash
 npm install
 ```
 
-3. Install frontend dependencies:
+4. Install frontend dependencies:
 ```bash
 cd frontend && npm install
 ```
 
-4. Initialize Gradle wrapper:
+5. Initialize Gradle wrapper:
 ```bash
 cd backend && gradle wrapper
 ```
 
-5. Start the PostgreSQL database:
+6. Start the PostgreSQL database:
 ```bash
 npm run db:up
 ```
@@ -63,9 +72,17 @@ npm run backend
 # Access at http://localhost:8080
 ```
 
-- Stop database:
+- Database commands:
 ```bash
-npm run db:down
+npm run db:up    # Start PostgreSQL
+npm run db:down  # Stop PostgreSQL
+```
+
+- Colima commands:
+```bash
+npm run colima:start   # Start Colima
+npm run colima:stop    # Stop Colima
+npm run colima:status  # Check Colima status
 ```
 
 ## Testing
