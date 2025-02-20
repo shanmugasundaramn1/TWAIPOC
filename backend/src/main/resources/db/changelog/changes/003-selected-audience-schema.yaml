@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: "002"
+      author: newsletter-dashboard
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE selected_audience_status (
+                id BIGSERIAL PRIMARY KEY,
+                newsletter_id BIGINT NOT NULL,
+                date DATE NOT NULL,
+                potential_count INTEGER NOT NULL,
+                potential_selected_count INTEGER NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                version INTEGER DEFAULT 1,
+                CONSTRAINT fk_selected_audience_newsletter FOREIGN KEY (newsletter_id) REFERENCES newsletters(id),
+                CONSTRAINT uk_newsletter_date UNIQUE (newsletter_id, date, version)
+              );
+
+              CREATE INDEX idx_selected_audience_date ON selected_audience_status(date);
+              CREATE INDEX idx_selected_audience_newsletter ON selected_audience_status(newsletter_id);
