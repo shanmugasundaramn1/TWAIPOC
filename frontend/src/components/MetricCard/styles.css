@@ -1,0 +1,34 @@
+.metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+/* Icon variants */
+.subscribers {
+  background: var(--bs-purple-100);
+  color: var(--bs-purple-600);
+}
+
+.open-rate {
+  background: var(--bs-success-100);
+  color: var(--bs-success-600);
+}
+
+.click-rate {
+  background: var(--bs-warning-100);
+  color: var(--bs-warning-600);
+}
+
+.bounce-rate {
+  background: var(--bs-danger-100);
+  color: var(--bs-danger-600);
+}
+
+/* Custom font size not available in Bootstrap */
+.fs-7 {
+  font-size: 0.875rem;
+}

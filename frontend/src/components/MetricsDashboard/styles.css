@@ -1,0 +1,29 @@
+.metrics-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+/* Ensure consistent sizing on larger screens */
+@media (min-width: 1024px) {
+  .metrics-dashboard {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Adjust layout for smaller screens */
+@media (max-width: 768px) {
+  .metrics-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Single column for very small screens */
+@media (max-width: 480px) {
+  .metrics-dashboard {
+    grid-template-columns: 1fr;
+  }
+}

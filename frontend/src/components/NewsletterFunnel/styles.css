@@ -1,0 +1,29 @@
+/* Custom background colors for funnel steps */
+.bg-blue-subtle {
+  background-color: #e0e7ff !important;
+  color: #4338ca;
+}
+
+.bg-green-subtle {
+  background-color: #dcfce7 !important;
+  color: #15803d;
+}
+
+.bg-yellow-subtle {
+  background-color: #fef9c3 !important;
+  color: #854d0e;
+}
+
+.bg-purple-subtle {
+  background-color: #f3e8ff !important;
+  color: #7e22ce;
+}
+
+/* Funnel step hover effect */
+.funnel-step {
+  transition: transform 0.2s ease;
+}
+
+.funnel-step:hover {
+  transform: translateY(-2px);
+}
