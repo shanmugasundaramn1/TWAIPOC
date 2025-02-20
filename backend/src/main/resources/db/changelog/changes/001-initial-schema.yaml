@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: "001"
+      author: newsletter-dashboard
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE newsletters (
+                id BIGSERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                sent_date TIMESTAMP NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );
+
+              CREATE TABLE metrics (
+                id BIGSERIAL PRIMARY KEY,
+                newsletter_id BIGINT NOT NULL,
+                metric_type VARCHAR(50) NOT NULL,
+                value DECIMAL(10,2) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_metrics_newsletter FOREIGN KEY (newsletter_id) REFERENCES newsletters(id)
+              );
+
+              CREATE INDEX idx_newsletter_sent_date ON newsletters(sent_date);
+              CREATE INDEX idx_metrics_newsletter_type ON metrics(newsletter_id, metric_type);
