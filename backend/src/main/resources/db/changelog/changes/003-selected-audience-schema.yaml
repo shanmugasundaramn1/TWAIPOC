@@ -14,7 +14,7 @@ databaseChangeLog:
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 version INTEGER DEFAULT 1,
-                CONSTRAINT fk_selected_audience_newsletter FOREIGN KEY (newsletter_id) REFERENCES newsletters(id),
+                CONSTRAINT fk_selected_audience_newsletter FOREIGN KEY (newsletter_id) REFERENCES newsletter(id),
                 CONSTRAINT uk_newsletter_date UNIQUE (newsletter_id, date, version)
               );
 

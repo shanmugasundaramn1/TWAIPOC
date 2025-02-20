@@ -7,7 +7,7 @@ databaseChangeLog:
             sql: |
               CREATE TABLE newsletter (
                 id BIGSERIAL PRIMARY KEY,
-                newsletter_id VARCHAR(50) NOT NULL,
+                newsletter_id BIGINT NOT NULL,
                 newsletter_name VARCHAR(255) NOT NULL,
                 partner_name VARCHAR(255) NOT NULL,
                 pal_date DATE NOT NULL,
