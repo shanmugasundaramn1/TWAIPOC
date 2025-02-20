@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: "004"
+      author: Pavan Kalyan Thota
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE members (
+                id BIGSERIAL PRIMARY KEY,
+                newsletter_id BIGINT NOT NULL,
+                member_id UUID NOT NULL,
+                status VARCHAR(10) NOT NULL,
+                error_message TEXT,
+                file_name VARCHAR(255) NOT NULL,
+                processed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_members_newsletter 
+                  FOREIGN KEY (newsletter_id) 
+                  REFERENCES newsletter(newsletter_id),
+                CONSTRAINT chk_status 
+                  CHECK (status IN ('enriched', 'failed'))
+              );
+
+              CREATE INDEX idx_members_newsletter_id 
+                ON members(newsletter_id);
+              
+              CREATE INDEX idx_members_status 
+                ON members(status);
+              
+              CREATE INDEX idx_members_processed_at 
+                ON members(processed_at);

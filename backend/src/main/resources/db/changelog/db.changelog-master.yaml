@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/changes/002-newsletter-schema.yaml
   - include:
       file: db/changelog/changes/003-selected-audience-schema.yaml
+  - include:
+      file: db/changelog/changes/004-members-schema.yaml
+  - include:
+      file: db/changelog/changes/005-member-interactions.yaml

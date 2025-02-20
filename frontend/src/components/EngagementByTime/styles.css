@@ -1,0 +1,12 @@
+.engagement-card {
+  height: 100%;
+  background-color: #ffffff;
+}
+
+.engagement-container {
+  padding: 1.5rem;
+}
+
+.engagement-content {
+  height: calc(100% - 2rem);
+} 

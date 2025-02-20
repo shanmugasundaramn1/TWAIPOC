@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-member-interactions-table
+      author: deepika.m
+      changes:
+        - createTable:
+            tableName: member_interactions
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: member_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: newsletter_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_member_interactions_newsletter
+                    references: newsletter(id)
+              - column:
+                  name: delivery_timestamp
+                  type: bigint
+              - column:
+                  name: open_timestamp
+                  type: bigint
+              - column:
+                  name: coupon_click_timestamp
+                  type: bigint
+      rollback:
+        - dropTable:
+            tableName: member_interactions
+
+  - changeSet:
+      id: create-member-interactions-indexes
+      author: deepika.m
+      changes:
+        - createIndex:
+            indexName: idx_member_interactions_newsletter
+            tableName: member_interactions
+            columns:
+              - column:
+                  name: newsletter_id
+        - createIndex:
+            indexName: idx_member_interactions_member
+            tableName: member_interactions
+            columns:
+              - column:
+                  name: member_uuid
+      rollback:
+        - dropIndex:
+            indexName: idx_member_interactions_newsletter
+            tableName: member_interactions
+        - dropIndex:
+            indexName: idx_member_interactions_member
+            tableName: member_interactions
