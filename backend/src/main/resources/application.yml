@@ -16,3 +16,8 @@ spring:
 
 server:
   port: 8080
+
+newsletter:
+  scheduler:
+    csv:
+      path: ${CSV_PATH:/tmp/newsletter/csv}
