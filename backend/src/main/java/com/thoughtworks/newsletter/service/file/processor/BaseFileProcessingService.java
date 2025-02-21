@@ -1,6 +1,6 @@
-package com.thoughtworks.newsletter.domain.service.file.processor;
+package com.thoughtworks.newsletter.service.file.processor;
 
-import com.thoughtworks.newsletter.domain.service.file.csv.CsvFileProcessor;
+import com.thoughtworks.newsletter.service.file.csv.CsvFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;

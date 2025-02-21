@@ -1,7 +1,7 @@
-package com.thoughtworks.newsletter.domain.repository;
+package com.thoughtworks.newsletter.repository;
 
-import com.thoughtworks.newsletter.domain.model.EnrichmentStatus;
-import com.thoughtworks.newsletter.domain.model.Member;
+import com.thoughtworks.newsletter.model.EnrichmentStatus;
+import com.thoughtworks.newsletter.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

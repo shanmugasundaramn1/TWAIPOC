@@ -2,9 +2,9 @@ package com.thoughtworks.newsletter.service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import com.thoughtworks.newsletter.domain.model.EnrichmentStatus;
-import com.thoughtworks.newsletter.domain.model.Member;
-import com.thoughtworks.newsletter.domain.repository.MemberRepository;
+import com.thoughtworks.newsletter.model.EnrichmentStatus;
+import com.thoughtworks.newsletter.model.Member;
+import com.thoughtworks.newsletter.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

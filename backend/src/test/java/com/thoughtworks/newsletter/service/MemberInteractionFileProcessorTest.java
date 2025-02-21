@@ -1,10 +1,10 @@
-package com.thoughtworks.newsletter.domain.service;
+package com.thoughtworks.newsletter.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.thoughtworks.newsletter.domain.service.memberinteraction.MemberInteractionFileProcessor;
+import com.thoughtworks.newsletter.service.memberinteraction.MemberInteractionFileProcessor;
 
 import java.io.File;
 import java.io.IOException;

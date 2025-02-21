@@ -1,7 +1,7 @@
-package com.thoughtworks.newsletter.domain.service.memberinteraction;
+package com.thoughtworks.newsletter.service.memberinteraction;
 
 import com.thoughtworks.newsletter.model.MemberInteraction;
-import com.thoughtworks.newsletter.domain.service.file.csv.CsvEntityMapper;
+import com.thoughtworks.newsletter.service.file.csv.CsvEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

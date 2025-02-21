@@ -1,4 +1,4 @@
-package com.thoughtworks.newsletter.domain.service.file.csv;
+package com.thoughtworks.newsletter.service.file.csv;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;

@@ -1,8 +1,9 @@
 package com.thoughtworks.newsletter.service;
 
-import com.thoughtworks.newsletter.domain.model.EnrichmentStatus;
-import com.thoughtworks.newsletter.domain.model.Member;
-import com.thoughtworks.newsletter.domain.repository.MemberRepository;
+import com.thoughtworks.newsletter.model.EnrichmentStatus;
+import com.thoughtworks.newsletter.model.Member;
+import com.thoughtworks.newsletter.repository.MemberRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +18,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 

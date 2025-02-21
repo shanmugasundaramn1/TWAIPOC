@@ -1,4 +1,4 @@
-package com.thoughtworks.newsletter.domain.service.file.csv;
+package com.thoughtworks.newsletter.service.file.csv;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

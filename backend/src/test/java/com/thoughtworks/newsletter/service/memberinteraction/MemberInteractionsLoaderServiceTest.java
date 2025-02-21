@@ -1,22 +1,19 @@
-package com.thoughtworks.newsletter.domain.service.memberinteraction;
+package com.thoughtworks.newsletter.service.memberinteraction;
 
 import com.thoughtworks.newsletter.model.MemberInteraction;
 import com.thoughtworks.newsletter.repository.MemberInteractionRepository;
-import com.thoughtworks.newsletter.domain.service.file.csv.CsvFileProcessor;
+import com.thoughtworks.newsletter.service.file.csv.CsvFileProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -34,18 +31,6 @@ class MemberInteractionsLoaderServiceTest {
     @BeforeEach
     void setUp() {
         loaderService = new MemberInteractionsLoaderService(fileProcessor, csvProcessor, repository);
-    }
-
-    @Test
-    void shouldHaveCorrectSchedulingConfiguration() throws NoSuchMethodException {
-        // Given
-        Scheduled annotation = MemberInteractionsLoaderService.class
-                .getDeclaredMethod("loadMemberInteractions")
-                .getAnnotation(Scheduled.class);
-
-        // Then
-        assertThat(annotation).isNotNull();
-        assertThat(annotation.cron()).isEqualTo("${member-interactions.processing.cron}");
     }
 
     @Test

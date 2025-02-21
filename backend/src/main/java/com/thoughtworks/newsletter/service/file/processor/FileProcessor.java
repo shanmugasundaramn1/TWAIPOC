@@ -1,4 +1,4 @@
-package com.thoughtworks.newsletter.domain.service.file.processor;
+package com.thoughtworks.newsletter.service.file.processor;
 
 import java.io.File;
 import java.io.IOException;

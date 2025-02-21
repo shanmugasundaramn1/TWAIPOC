@@ -1,6 +1,6 @@
-package com.thoughtworks.newsletter.domain.service.memberinteraction;
+package com.thoughtworks.newsletter.service.memberinteraction;
 
-import com.thoughtworks.newsletter.domain.service.file.processor.FileProcessor;
+import com.thoughtworks.newsletter.service.file.processor.FileProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
