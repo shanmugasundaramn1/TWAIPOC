@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: "006"
+      author: newsletter-dashboard
+      changes:
+        - sql:
+            sql: |
+              -- First, drop the existing check constraint
+              ALTER TABLE members 
+                DROP CONSTRAINT chk_status;
+              
+              -- Update existing data to new format
+              UPDATE members 
+                SET status = UPPER(status);
+              
+              -- Add the new check constraint
+              ALTER TABLE members 
+                ADD CONSTRAINT chk_status 
+                CHECK (status IN ('ENRICHED', 'FAILED'));
+      rollback:
+        - sql:
+            sql: |
+              -- Drop the new constraint
+              ALTER TABLE members 
+                DROP CONSTRAINT chk_status;
+              
+              -- Update data back to lowercase
+              UPDATE members 
+                SET status = LOWER(status);
+              
+              -- Add back the original constraint
+              ALTER TABLE members 
+                ADD CONSTRAINT chk_status 
+                CHECK (status IN ('enriched', 'failed')); 

@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/004-members-schema.yaml
   - include:
       file: db/changelog/changes/005-member-interactions.yaml
+  - include: 
+      file: db/changelog/changes/006-update-members-status-constraint.yaml
