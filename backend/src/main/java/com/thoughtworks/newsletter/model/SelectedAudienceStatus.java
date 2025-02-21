@@ -1,4 +1,4 @@
-package com.thoughtworks.newsletter.domain.model;
+package com.thoughtworks.newsletter.model;
 
 import jakarta.persistence.*;
 import lombok.*;

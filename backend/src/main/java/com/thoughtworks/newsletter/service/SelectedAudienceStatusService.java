@@ -1,14 +1,14 @@
 package com.thoughtworks.newsletter.service;
 
-import com.thoughtworks.newsletter.domain.model.Newsletter;
-import com.thoughtworks.newsletter.domain.model.SelectedAudienceStatus;
-import com.thoughtworks.newsletter.domain.repository.SelectedAudienceStatusRepository;
+import com.thoughtworks.newsletter.model.Newsletter;
+import com.thoughtworks.newsletter.model.SelectedAudienceStatus;
+import com.thoughtworks.newsletter.repository.SelectedAudienceStatusRepository;
 import com.thoughtworks.newsletter.scheduler.dto.SelectedAudienceStatusCsvDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.thoughtworks.newsletter.dto.TotalTargetedResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,5 +50,10 @@ public class SelectedAudienceStatusService {
                 .updatedAt(LocalDateTime.now())
                 .version(1)
                 .build();
+    }
+
+    public TotalTargetedResponse getTotalTargeted(String newsletterName, LocalDate date, String partnerName) {
+        Long count = repository.countByNewsletterFilters(newsletterName, date, partnerName);
+        return new TotalTargetedResponse(count);
     }
 }

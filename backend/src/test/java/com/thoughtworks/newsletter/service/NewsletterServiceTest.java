@@ -1,7 +1,7 @@
 package com.thoughtworks.newsletter.service;
 
-import com.thoughtworks.newsletter.domain.model.Newsletter;
-import com.thoughtworks.newsletter.domain.repository.NewsletterRepository;
+import com.thoughtworks.newsletter.model.Newsletter;
+import com.thoughtworks.newsletter.repository.NewsletterRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
