@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class SelectedAudienceStatusScheduler {
 
     private final NewsletterProperties properties;
-    private final CsvFileProcessor csvFileProcessor;
+    private final SelectedAudienceStatusCsvFileProcessor csvFileProcessor;
     private final SelectedAudienceStatusService service;
 
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)

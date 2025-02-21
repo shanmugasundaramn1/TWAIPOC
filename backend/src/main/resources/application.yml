@@ -21,3 +21,10 @@ newsletter:
   scheduler:
     csv:
       path: ${CSV_PATH:/tmp/newsletter/csv}
+
+file:
+  base-path: ${user.dir}
+
+member-interactions:
+  processing:
+    cron: 0 0/2 0 * * *

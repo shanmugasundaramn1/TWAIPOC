@@ -35,7 +35,7 @@ class SelectedAudienceStatusSchedulerTest {
     private NewsletterProperties.Scheduler.Csv csv;
 
     @Mock
-    private CsvFileProcessor csvFileProcessor;
+    private SelectedAudienceStatusCsvFileProcessor csvFileProcessor;
 
     @Mock
     private SelectedAudienceStatusService service;
