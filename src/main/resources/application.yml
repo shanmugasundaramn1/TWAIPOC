@@ -1,0 +1,3 @@
+app:
+  file-processor:
+    input-directory: /path/to/your/input/directory 
