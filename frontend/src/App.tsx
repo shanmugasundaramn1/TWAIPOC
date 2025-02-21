@@ -27,7 +27,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [steps, setSteps] = useState<FunnelStep[]>([
-    { label: 'Total Targeted', value: '30,000', color: 'blue' },
+    { label: 'Total Targeted', value: '0', color: 'blue' },
     { label: 'Data Enriched', value: '27,500', color: 'green' },
     { label: 'Delivered', value: '24,892', color: 'yellow' },
     { label: 'Opened', value: '17,100', color: 'purple' }

@@ -7,7 +7,7 @@ describe('NewsletterFunnel', () => {
     steps: [
       {
         label: 'Total Targeted',
-        value: '30,000',
+        value: '0',
         color: 'blue'
       },
       {
