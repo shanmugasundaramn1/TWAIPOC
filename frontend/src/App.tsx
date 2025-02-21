@@ -8,6 +8,16 @@ import { fetchNewsletters, fetchPartners } from './services/api';
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 
+interface TotalTargetedResponse {
+  total_targeted: number;
+}
+
+interface FunnelStep {
+  label: string;
+  value: string;
+  color: string;
+}
+
 function App() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [newsletters, setNewsletters] = useState<string[]>([]);
@@ -16,6 +26,12 @@ function App() {
   const [selectedPartner, setSelectedPartner] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [steps, setSteps] = useState<FunnelStep[]>([
+    { label: 'Total Targeted', value: '30,000', color: 'blue' },
+    { label: 'Data Enriched', value: '27,500', color: 'green' },
+    { label: 'Delivered', value: '24,892', color: 'yellow' },
+    { label: 'Opened', value: '17,100', color: 'purple' }
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -39,13 +55,33 @@ function App() {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement submit logic
-    console.log('Submit clicked', {
-      selectedNewsletter,
-      selectedPartner,
-      selectedDate
-    });
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    try {
+      // Add the new total-targeted API call
+      const totalTargetedResponse = await fetch(
+        `http://localhost:8080/api/selected-audience-status/total-targeted?` +
+        `newsletterName=${encodeURIComponent(selectedNewsletter)}` +
+        `&date=${selectedDate ? selectedDate.toLocaleDateString('en-CA') : ''}` +
+        `&partnerName=${encodeURIComponent(selectedPartner)}`
+      );
+
+      if (!totalTargetedResponse.ok) {
+        throw new Error('Failed to fetch total targeted');
+      }
+
+      const data: TotalTargetedResponse = await totalTargetedResponse.json();
+      
+      // Update the first step of the funnel with the total_targeted value
+      setSteps(prevSteps => {
+        const newSteps = [...prevSteps];
+        newSteps[0] = { ...newSteps[0], value: data.total_targeted.toString() };
+        return newSteps;
+      });
+    } catch (error) {
+      console.error('Error during submission:', error);
+    }
   };
 
   const metrics = [
@@ -159,28 +195,7 @@ function App() {
 
               <section className="mb-5">
                 <NewsletterFunnel
-                  steps={[
-                    {
-                      label: 'Total Targeted',
-                      value: '30,000',
-                      color: 'blue'
-                    },
-                    {
-                      label: 'Data Enriched',
-                      value: '27,500',
-                      color: 'green'
-                    },
-                    {
-                      label: 'Delivered',
-                      value: '24,892',
-                      color: 'yellow'
-                    },
-                    {
-                      label: 'Opened',
-                      value: '17,100',
-                      color: 'purple'
-                    }
-                  ]}
+                  steps={steps}
                 />
               </section>
 

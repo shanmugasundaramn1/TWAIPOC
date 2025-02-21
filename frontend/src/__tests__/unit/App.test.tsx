@@ -8,6 +8,10 @@ jest.mock('../../services/api', () => ({
   fetchPartners: jest.fn()
 }));
 
+// Mock fetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
+
 // Mock react-datepicker
 jest.mock('react-datepicker', () => {
   return function DatePicker(props: any) {
@@ -46,6 +50,7 @@ describe('App', () => {
   beforeEach(() => {
     (fetchNewsletters as jest.Mock).mockReset();
     (fetchPartners as jest.Mock).mockReset();
+    mockFetch.mockReset();
   });
 
   it('renders loading state', async () => {
@@ -143,5 +148,88 @@ describe('App', () => {
 
     // Check for engagement by time
     expect(screen.getByTestId('engagement-by-time')).toBeInTheDocument();
+  });
+
+  it('should fetch total targeted count and update funnel', async () => {
+    // Setup mocks
+    (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
+    (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ total_targeted: 5000 })
+    });
+
+    render(<App />);
+
+    // Wait for initial data load
+    await waitFor(() => {
+      expect(screen.getByText(mockNewsletters[0])).toBeInTheDocument();
+    });
+
+    // Fill form
+    fireEvent.change(screen.getByRole('combobox', { name: /newsletter/i }), {
+      target: { value: mockNewsletters[0] }
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: /partner/i }), {
+      target: { value: mockPartners[0] }
+    });
+    fireEvent.change(screen.getByPlaceholderText('Select date'), {
+      target: { value: '2024-03-15' }
+    });
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // Verify API call
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/total-targeted'));
+    });
+
+    // Verify funnel update
+    await waitFor(() => {
+      const funnelStep = screen.getByText('5000');
+      expect(funnelStep).toBeInTheDocument();
+    });
+  });
+
+  it('should handle total targeted API error', async () => {
+    // Setup mocks
+    (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
+    (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
+    mockFetch.mockResolvedValue({
+      ok: false
+    });
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    render(<App />);
+
+    // Wait for initial data load and fill form
+    await waitFor(() => {
+      expect(screen.getByText(mockNewsletters[0])).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByRole('combobox', { name: /newsletter/i }), {
+      target: { value: mockNewsletters[0] }
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: /partner/i }), {
+      target: { value: mockPartners[0] }
+    });
+    fireEvent.change(screen.getByPlaceholderText('Select date'), {
+      target: { value: '2024-03-15' }
+    });
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // Verify error handling
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error during submission:',
+        expect.any(Error)
+      );
+    });
+
+    consoleSpy.mockRestore();
   });
 });
