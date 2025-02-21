@@ -79,25 +79,28 @@ public class FileProcessorService {
 
     private boolean isValidHeader(String[] header) {
         return header != null && 
-               header.length == 3 && 
+               header.length == 4 && 
                "newsletter_id".equals(header[0]) && 
                "member_id".equals(header[1]) &&
-               "status".equals(header[2]);
+               "status".equals(header[2]) &&
+               "error_message".equals(header[3]);
     }
 
     private Member createMember(String[] line, String fileName) {
-        if (line.length != 3) {
+        if (line.length != 4) {
             throw new IllegalArgumentException("Invalid number of columns");
         }
 
         Long newsletterId = Long.parseLong(line[0]);
         UUID memberId = UUID.fromString(line[1]);
         EnrichmentStatus status = EnrichmentStatus.valueOf(line[2].toUpperCase());
+        String errorMessage = line[3].trim().isEmpty() ? null : line[3];
 
         return Member.builder()
                 .newsletterId(newsletterId)
                 .memberId(memberId)
                 .status(status)
+                .errorMessage(errorMessage)
                 .fileName(fileName)
                 .processedAt(LocalDateTime.now())
                 .build();

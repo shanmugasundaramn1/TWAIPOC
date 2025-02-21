@@ -55,11 +55,13 @@ class FileProcessorServiceTest {
     }
 
     @Test
-    void shouldProcessValidFile() throws IOException {
+    void shouldProcessValidFileWithErrorMessages() throws IOException {
         // Given
-        String content = "newsletter_id,member_id,status\n" +
-                        "1," + UUID.randomUUID() + ",enriched\n" +
-                        "1," + UUID.randomUUID() + ",enriched";
+        UUID memberId1 = UUID.randomUUID();
+        UUID memberId2 = UUID.randomUUID();
+        String content = "newsletter_id,member_id,status,error_message\n" +
+                        "1," + memberId1 + ",enriched,\n" +
+                        "1," + memberId2 + ",failed,Error occurred";
         Path file = inputDir.resolve("test.csv");
         Files.writeString(file, content);
 
@@ -72,12 +74,21 @@ class FileProcessorServiceTest {
         verify(memberRepository).saveAll(membersCaptor.capture());
         List<Member> savedMembers = membersCaptor.getValue();
         assertThat(savedMembers).hasSize(2);
-        assertThat(savedMembers).allMatch(m -> 
-            m.getNewsletterId().equals(1L) &&
-            m.getStatus() == EnrichmentStatus.ENRICHED &&
-            m.getFileName().equals("test.csv") &&
-            m.getProcessedAt() != null
-        );
+        assertThat(savedMembers).hasSize(2);
+        
+        Member enrichedMember = savedMembers.stream()
+            .filter(m -> m.getMemberId().equals(memberId1))
+            .findFirst()
+            .orElseThrow();
+        assertThat(enrichedMember.getStatus()).isEqualTo(EnrichmentStatus.ENRICHED);
+        assertThat(enrichedMember.getErrorMessage()).isNull();
+        
+        Member failedMember = savedMembers.stream()
+            .filter(m -> m.getMemberId().equals(memberId2))
+            .findFirst()
+            .orElseThrow();
+        assertThat(failedMember.getStatus()).isEqualTo(EnrichmentStatus.FAILED);
+        assertThat(failedMember.getErrorMessage()).isEqualTo("Error occurred");
 
         assertThat(Files.exists(processedDir.resolve("test.csv"))).isTrue();
         assertThat(Files.exists(file)).isFalse();
@@ -86,7 +97,7 @@ class FileProcessorServiceTest {
     @Test
     void shouldHandleInvalidFile() throws IOException {
         // Given
-        String content = "invalid,header,wrong\n1,2,3";
+        String content = "invalid,header,wrong,extra\n1,2,3,4";
         Path file = inputDir.resolve("invalid.csv");
         Files.writeString(file, content);
 
@@ -104,10 +115,10 @@ class FileProcessorServiceTest {
         // Given
         UUID validMemberId1 = UUID.randomUUID();
         UUID validMemberId2 = UUID.randomUUID();
-        String content = "newsletter_id,member_id,status\n" +
-                        "1," + validMemberId1 + ",enriched\n" +
-                        "invalid," + UUID.randomUUID() + ",failed\n" + // This line will be skipped
-                        "1," + validMemberId2 + ",failed"; // This valid line will be processed
+        String content = "newsletter_id,member_id,status,error_message\n" +
+                        "1," + validMemberId1 + ",enriched,\n" +
+                        "invalid," + UUID.randomUUID() + ",failed,Some error\n" + // This line will be skipped
+                        "1," + validMemberId2 + ",failed,Another error"; // This valid line will be processed
         Path file = inputDir.resolve("mixed-records.csv");
         Files.writeString(file, content);
 
