@@ -12,27 +12,18 @@ function App() {
 
   const metrics = [
     {
-      title: 'Total Subscribers',
-      value: '24,892',
-      change: 12.5,
-      icon: 'subscribers' as const,
-    },
-    {
       title: 'Open Rate',
       value: '68.7%',
-      change: 3.2,
       icon: 'open-rate' as const,
     },
     {
       title: 'Click Rate',
       value: '42.3%',
-      change: -1.8,
       icon: 'click-rate' as const,
     },
     {
       title: 'Bounce Rate',
       value: '2.4%',
-      change: -0.5,
       icon: 'bounce-rate' as const,
     },
   ];
@@ -122,14 +113,7 @@ function App() {
 
               <section className="row g-4">
                 <div className="col-md-6">
-                  <DataEnrichmentLoss
-                    items={[
-                      { label: 'Invalid Emails', value: 1250 },
-                      { label: 'Missing Information', value: 858 },
-                      { label: 'Duplicate Records', value: 450 },
-                      { label: 'Format Errors', value: 225 }
-                    ]}
-                  />
+                  <DataEnrichmentLoss items={enrichmentData} />
                 </div>
                 <div className="col-md-6">
                   <EngagementByTime data={engagementData} />
