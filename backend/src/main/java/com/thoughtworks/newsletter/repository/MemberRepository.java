@@ -5,7 +5,8 @@ import com.thoughtworks.newsletter.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
+import com.thoughtworks.newsletter.dto.InteractionCountsDto;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -20,4 +21,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByNewsletterIdOrderByProcessedAtDesc(Long newsletterId);
     
     List<Member> findByStatusAndErrorMessageIsNotNull(EnrichmentStatus status);
+    
+    @Query("SELECT count(m.id) " +
+           "FROM Newsletter n " +
+           "INNER JOIN Member m ON m.newsletterId = n.id " +
+           "WHERE n.newsletterName = COALESCE(:newsletterName, n.newsletterName) " +
+           "AND n.palDate = COALESCE(:palDate, n.palDate) " +
+           "AND n.partnerName = COALESCE(:partnerName, n.partnerName)")
+    Long getEnrichedCount(String newsletterName, LocalDate palDate, String partnerName);
 }

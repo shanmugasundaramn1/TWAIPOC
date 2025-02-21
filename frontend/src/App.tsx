@@ -10,11 +10,14 @@ import './App.css';
 
 interface TotalTargetedResponse {
   total_targeted: number;
+  total_delivered: number;
+  total_opened: number;
+  data_enriched: number;
 }
 
 interface FunnelStep {
   label: string;
-  value: string;
+  value: number;
   color: string;
 }
 
@@ -27,10 +30,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [steps, setSteps] = useState<FunnelStep[]>([
-    { label: 'Total Targeted', value: '0', color: 'blue' },
-    { label: 'Data Enriched', value: '27,500', color: 'green' },
-    { label: 'Delivered', value: '24,892', color: 'yellow' },
-    { label: 'Opened', value: '17,100', color: 'purple' }
+    { label: 'Total Targeted', value: 0, color: 'blue' },
+    { label: 'Data Enriched', value: 0, color: 'green' },
+    { label: 'Delivered', value: 0, color: 'yellow' },
+    { label: 'Opened', value: 0, color: 'purple' }
   ]);
 
   useEffect(() => {
@@ -73,12 +76,12 @@ function App() {
 
       const data: TotalTargetedResponse = await totalTargetedResponse.json();
       
-      // Update the first step of the funnel with the total_targeted value
-      setSteps(prevSteps => {
-        const newSteps = [...prevSteps];
-        newSteps[0] = { ...newSteps[0], value: data.total_targeted.toString() };
-        return newSteps;
-      });
+      setSteps([
+        { label: 'Total Targeted', value: data.total_targeted, color: 'blue' },
+        { label: 'Data Enriched', value: data.data_enriched, color: 'green' },
+        { label: 'Delivered', value: data.total_delivered, color: 'yellow' },
+        { label: 'Opened', value: data.total_opened, color: 'purple' }
+      ]);
     } catch (error) {
       console.error('Error during submission:', error);
     }

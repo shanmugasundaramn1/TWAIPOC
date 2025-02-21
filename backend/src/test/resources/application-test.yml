@@ -6,6 +6,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     driver-class-name: org.postgresql.Driver
   liquibase:

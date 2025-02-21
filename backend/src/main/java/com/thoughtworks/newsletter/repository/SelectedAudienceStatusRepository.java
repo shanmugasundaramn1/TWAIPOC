@@ -24,9 +24,5 @@ public interface SelectedAudienceStatusRepository extends JpaRepository<Selected
            "WHERE n.newsletterName = COALESCE(:newsletterName, n.newsletterName) " +
            "AND n.palDate = COALESCE(:palDate, n.palDate) " +
            "AND n.partnerName = COALESCE(:partnerName, n.partnerName)")
-    Long countByNewsletterFilters(
-            @Param("newsletterName") String newsletterName,
-            @Param("palDate") LocalDate palDate,
-            @Param("partnerName") String partnerName
-    );
+    Long countByNewsletterFilters(String newsletterName, LocalDate palDate, String partnerName);
 }

@@ -22,9 +22,14 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    testcontainersVersion = '1.19.3'
+}
+
 dependencyManagement {
     imports {
         mavenBom "org.springframework.boot:spring-boot-dependencies:3.2.2"
+        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
     }
 }
 

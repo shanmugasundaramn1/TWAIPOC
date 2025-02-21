@@ -3,6 +3,7 @@ package com.thoughtworks.newsletter.service;
 import com.thoughtworks.newsletter.model.Newsletter;
 import com.thoughtworks.newsletter.model.SelectedAudienceStatus;
 import com.thoughtworks.newsletter.repository.SelectedAudienceStatusRepository;
+import com.thoughtworks.newsletter.repository.MemberRepository;
 import com.thoughtworks.newsletter.scheduler.dto.SelectedAudienceStatusCsvDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import com.thoughtworks.newsletter.dto.TotalTargetedResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.thoughtworks.newsletter.dto.InteractionCountsDto;
+import com.thoughtworks.newsletter.repository.MemberInteractionRepository;
 
 @Slf4j
 @Service
@@ -19,6 +22,8 @@ import java.util.List;
 public class SelectedAudienceStatusService {
 
     private final SelectedAudienceStatusRepository repository;
+    private final MemberRepository memberRepository;
+    private final MemberInteractionRepository memberInteractionRepository;
     private final NewsletterService newsletterService;
 
     @Transactional
@@ -52,8 +57,21 @@ public class SelectedAudienceStatusService {
                 .build();
     }
 
-    public TotalTargetedResponse getTotalTargeted(String newsletterName, LocalDate date, String partnerName) {
-        Long count = repository.countByNewsletterFilters(newsletterName, date, partnerName);
-        return new TotalTargetedResponse(count);
+    public TotalTargetedResponse getTotalTargeted(String newsletterName, LocalDate palDate, String partnerName) {
+        // Get total targeted count from existing method
+        Long totalTargeted = repository.countByNewsletterFilters(newsletterName, palDate, partnerName);
+        
+        // Get interaction counts
+        InteractionCountsDto interactionCounts = memberInteractionRepository.getInteractionCounts(newsletterName, palDate, partnerName);
+        
+        // Get enriched count
+        Long enrichedCount = memberRepository.getEnrichedCount(newsletterName, palDate, partnerName);
+        
+        return new TotalTargetedResponse(
+            totalTargeted,
+            interactionCounts.getDelivered() == null ? 0 : interactionCounts.getDelivered(),
+            interactionCounts.getOpened() == null ? 0 : interactionCounts.getOpened(),
+            enrichedCount == null ? 0 : enrichedCount
+        );
     }
 }

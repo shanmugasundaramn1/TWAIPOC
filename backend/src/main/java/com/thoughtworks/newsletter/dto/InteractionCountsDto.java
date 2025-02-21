@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TotalTargetedResponse {
-    private Long total_targeted;
-    private Long total_delivered;
-    private Long total_opened;
-    private Long data_enriched;
-}
+public class InteractionCountsDto {
+    private Long delivered;
+    private Long opened;
+} 

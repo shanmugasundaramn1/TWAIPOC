@@ -7,22 +7,22 @@ describe('NewsletterFunnel', () => {
     steps: [
       {
         label: 'Total Targeted',
-        value: '0',
+        value: 0,
         color: 'blue'
       },
       {
         label: 'Data Enriched',
-        value: '27,500',
+        value: 27500,
         color: 'green'
       },
       {
         label: 'Delivered',
-        value: '24,892',
+        value: 24892,
         color: 'yellow'
       },
       {
         label: 'Opened',
-        value: '17,100',
+        value: 17100,
         color: 'purple'
       }
     ]

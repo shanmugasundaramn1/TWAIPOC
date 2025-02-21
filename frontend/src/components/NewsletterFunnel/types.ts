@@ -1,6 +1,6 @@
 export interface FunnelStep {
   label: string;
-  value: string;
+  value: number;
   color: string;
 }
 

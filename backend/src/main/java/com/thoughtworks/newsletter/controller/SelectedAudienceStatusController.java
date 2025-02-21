@@ -20,10 +20,10 @@ public class SelectedAudienceStatusController {
     @GetMapping("/total-targeted")
     public ResponseEntity<TotalTargetedResponse> getTotalTargeted(
             @RequestParam(required = false) String newsletterName,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate palDate,
             @RequestParam(required = false) String partnerName
     ) {
-        TotalTargetedResponse response = selectedAudienceStatusService.getTotalTargeted(newsletterName, date, partnerName);
+        TotalTargetedResponse response = selectedAudienceStatusService.getTotalTargeted(newsletterName, palDate, partnerName);
         return ResponseEntity.ok(response);
     }
 } 

@@ -1,14 +1,14 @@
 package com.thoughtworks.newsletter;
 
 import com.thoughtworks.newsletter.config.BaseIntegrationTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Disabled;
 
-@Disabled
+@Disabled("Disabled until TestContainers setup is complete")
 class NewsletterDashboardApplicationTests extends BaseIntegrationTest {
 
     @Autowired
