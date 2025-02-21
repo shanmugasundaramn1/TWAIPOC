@@ -1,6 +1,6 @@
 package com.thoughtworks.newsletter.domain.service.memberinteraction;
 
-import com.thoughtworks.newsletter.domain.model.MemberInteraction;
+import com.thoughtworks.newsletter.model.MemberInteraction;
 import com.thoughtworks.newsletter.domain.service.file.csv.CsvEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

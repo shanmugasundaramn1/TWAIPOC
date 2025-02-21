@@ -1,7 +1,7 @@
 package com.thoughtworks.newsletter.domain.service.memberinteraction;
 
-import com.thoughtworks.newsletter.domain.model.MemberInteraction;
-import com.thoughtworks.newsletter.domain.repository.MemberInteractionRepository;
+import com.thoughtworks.newsletter.model.MemberInteraction;
+import com.thoughtworks.newsletter.repository.MemberInteractionRepository;
 import com.thoughtworks.newsletter.domain.service.file.csv.CsvFileProcessor;
 import com.thoughtworks.newsletter.domain.service.file.processor.BaseFileProcessingService;
 
