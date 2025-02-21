@@ -3,7 +3,6 @@ package com.thoughtworks.newsletter.scheduler;
 import com.thoughtworks.newsletter.config.NewsletterProperties;
 import com.thoughtworks.newsletter.scheduler.dto.SelectedAudienceStatusCsvDto;
 import com.thoughtworks.newsletter.service.SelectedAudienceStatusService;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +12,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import lombok.SneakyThrows;
 
 @ExtendWith(MockitoExtension.class)
 class SelectedAudienceStatusSchedulerTest {
@@ -44,35 +46,26 @@ class SelectedAudienceStatusSchedulerTest {
     Path tempDir;
 
     @BeforeEach
-    @SneakyThrows
     void setUp() {
-        doReturn(scheduler).when(properties).getScheduler();
-        doReturn(csv).when(scheduler).getCsv();
-        doReturn(List.of()).when(csvFileProcessor).processCsvFile(any(File.class));
+        when(properties.getScheduler()).thenReturn(scheduler);
+        when(scheduler.getCsv()).thenReturn(csv);
         statusScheduler = new SelectedAudienceStatusScheduler(properties, csvFileProcessor, service);
     }
 
-    @SneakyThrows
-    private Path createTestFile(String fileName, String content) {
+    private Path createTestFile(String fileName, String content) throws IOException {
         Path targetPath = tempDir.resolve(fileName);
         Files.writeString(targetPath, content);
         return targetPath;
     }
 
     @Test
-    @SneakyThrows
-    void shouldProcessValidCsvFiles() {
+    void shouldProcessValidCsvFiles() throws IOException {
         // Given
-        String csvPath = tempDir.toString();
-        doReturn(csvPath).when(csv).getPath();
-
-        // Create test CSV file
-        String csvContent = "newsletter_id,date,potential_count,potential_selected_count\n" +
-                "1,2024-02-20,100,50";
-        createTestFile("valid_audience_status.csv", csvContent);
-
+        when(csv.getPath()).thenReturn(tempDir.toString());
+        
+        createTestFile("valid_audience_status.csv", "content");
         List<SelectedAudienceStatusCsvDto> mockRecords = List.of(new SelectedAudienceStatusCsvDto());
-        doReturn(mockRecords).when(csvFileProcessor).processCsvFile(any(File.class));
+        when(csvFileProcessor.processCsvFile(any(File.class))).thenReturn(mockRecords);
 
         // When
         statusScheduler.processAudienceStatusFiles();
@@ -83,11 +76,9 @@ class SelectedAudienceStatusSchedulerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldHandleInvalidDirectory() {
+    void shouldHandleInvalidDirectory() throws FileNotFoundException {
         // Given
-        String invalidPath = "/invalid/path";
-        doReturn(invalidPath).when(csv).getPath();
+        when(csv.getPath()).thenReturn("/invalid/path");
 
         // When
         statusScheduler.processAudienceStatusFiles();
@@ -98,11 +89,9 @@ class SelectedAudienceStatusSchedulerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldHandleEmptyDirectory() {
+    void shouldHandleEmptyDirectory() throws FileNotFoundException {
         // Given
-        String emptyDirPath = tempDir.toString();
-        doReturn(emptyDirPath).when(csv).getPath();
+        when(csv.getPath()).thenReturn(tempDir.toString());
 
         // When
         statusScheduler.processAudienceStatusFiles();
@@ -113,19 +102,12 @@ class SelectedAudienceStatusSchedulerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldHandleProcessingError() {
+    void shouldHandleProcessingError() throws IOException {
         // Given
-        String csvPath = tempDir.toString();
-        doReturn(csvPath).when(csv).getPath();
-
-        // Create test CSV file
-        String csvContent = "newsletter_id,date,potential_count,potential_selected_count\n" +
-                "1,2024-02-20,100,50";
-        createTestFile("valid_audience_status.csv", csvContent);
-
-        doThrow(new IllegalArgumentException("Processing error"))
-                .when(csvFileProcessor).processCsvFile(any(File.class));
+        when(csv.getPath()).thenReturn(tempDir.toString());
+        createTestFile("error.csv", "content");
+        when(csvFileProcessor.processCsvFile(any(File.class)))
+            .thenThrow(new IllegalArgumentException("Processing error"));
 
         // When
         statusScheduler.processAudienceStatusFiles();
@@ -136,8 +118,28 @@ class SelectedAudienceStatusSchedulerTest {
     }
 
     @Test
+    void shouldProcessMultipleFiles() throws IOException {
+        // Given
+        when(csv.getPath()).thenReturn(tempDir.toString());
+
+        createTestFile("file1.csv", "content1");
+        createTestFile("file2.csv", "content2");
+        createTestFile("notcsv.txt", "not a csv");
+
+        List<SelectedAudienceStatusCsvDto> mockRecords = List.of(new SelectedAudienceStatusCsvDto());
+        when(csvFileProcessor.processCsvFile(any(File.class))).thenReturn(mockRecords);
+
+        // When
+        statusScheduler.processAudienceStatusFiles();
+
+        // Then
+        verify(csvFileProcessor, times(2)).processCsvFile(any(File.class));
+        verify(service, times(2)).processAndSaveAudienceStatus(mockRecords);
+    }
+
+    @Test
     @SneakyThrows
-    void shouldHandleFileNotFoundError() {
+    void shouldHandleFileNotFoundError() throws FileNotFoundException, IOException {
         // Given
         String csvPath = tempDir.toString();
         doReturn(csvPath).when(csv).getPath();

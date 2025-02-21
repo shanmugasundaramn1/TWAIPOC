@@ -1,28 +1,29 @@
 import { render, screen } from '@testing-library/react';
-import { NewsletterFunnel } from '../../../components/NewsletterFunnel';
+import { NewsletterFunnel } from '../../../components/NewsletterFunnel/index';
+import { NewsletterFunnelProps } from '../../../components/NewsletterFunnel/types';
 
 describe('NewsletterFunnel', () => {
-  const defaultProps = {
+  const defaultProps: NewsletterFunnelProps = {
     steps: [
       {
         label: 'Total Targeted',
         value: '30,000',
-        color: 'primary'
+        color: 'blue'
       },
       {
         label: 'Data Enriched',
         value: '27,500',
-        color: 'success'
+        color: 'green'
       },
       {
         label: 'Delivered',
         value: '24,892',
-        color: 'warning'
+        color: 'yellow'
       },
       {
         label: 'Opened',
         value: '17,100',
-        color: 'info'
+        color: 'purple'
       }
     ]
   };
@@ -50,5 +51,10 @@ describe('NewsletterFunnel', () => {
       const stepElement = screen.getByTestId(`funnel-step-${step.label}`);
       expect(stepElement).toHaveClass(`bg-${step.color}-subtle`);
     });
+  });
+
+  it('renders the funnel title', () => {
+    render(<NewsletterFunnel {...defaultProps} />);
+    expect(screen.getByText('Newsletter Success Funnel')).toBeInTheDocument();
   });
 });

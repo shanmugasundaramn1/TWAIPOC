@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -35,5 +36,13 @@ public class NewsletterService {
                 .build();
 
         return repository.save(newsletter);
+    }
+
+    public List<String> getAllNewsletterNames() {
+        return repository.findDistinctNewsletterName();
+    }
+
+    public List<String> getAllPartnerNames() {
+        return repository.findDistinctPartnerName();
     }
 }

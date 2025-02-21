@@ -16,12 +16,12 @@ describe('DataEnrichmentLoss', () => {
     expect(screen.getByText('Data Enrichment Loss')).toBeInTheDocument();
   });
 
-  it('renders all loss items with labels and values', () => {
+  it('renders all loss items with labels and formatted values', () => {
     render(<DataEnrichmentLoss {...defaultProps} />);
     
     defaultProps.items.forEach(item => {
       expect(screen.getByText(item.label)).toBeInTheDocument();
-      expect(screen.getByText(item.value.toString())).toBeInTheDocument();
+      expect(screen.getByText(item.value.toLocaleString())).toBeInTheDocument();
     });
   });
 
