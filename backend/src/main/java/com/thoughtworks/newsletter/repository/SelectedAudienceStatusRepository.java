@@ -21,10 +21,12 @@ public interface SelectedAudienceStatusRepository extends JpaRepository<Selected
 
     @Query("SELECT COUNT(s) FROM SelectedAudienceStatus s " +
            "JOIN s.newsletter n " +
-           "WHERE (:newsletterName IS NULL OR n.newsletterName = :newsletterName) " +
-           "AND (:date IS NULL OR s.date = :date) " +
-           "AND (:partnerName IS NULL OR n.partnerName = :partnerName)")
-    Long countByNewsletterFilters(@Param("newsletterName") String newsletterName, 
-                                @Param("date") LocalDate date, 
-                                @Param("partnerName") String partnerName);
-} 
+           "WHERE n.newsletterName = COALESCE(:newsletterName, n.newsletterName) " +
+           "AND n.palDate = COALESCE(:palDate, n.palDate) " +
+           "AND n.partnerName = COALESCE(:partnerName, n.partnerName)")
+    Long countByNewsletterFilters(
+            @Param("newsletterName") String newsletterName,
+            @Param("palDate") LocalDate palDate,
+            @Param("partnerName") String partnerName
+    );
+}
