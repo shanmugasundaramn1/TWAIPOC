@@ -38,7 +38,7 @@ export const NewsletterFunnel: React.FC<NewsletterFunnelProps> = ({ steps }) => 
                   {step.label}
                 </div>
                 <div className="h3 mb-0 fw-semibold">
-                  {step.value}
+                  {step.value ?? 0}
                 </div>
               </div>
               {index < steps.length - 1 && <StepArrow />}

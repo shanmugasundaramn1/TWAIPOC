@@ -88,6 +88,10 @@
   height: 3rem;
 }
 
-:root {
+#root {
   width: -webkit-fill-available;
+}
+
+.metrics-dashboard {
+  margin-bottom: inherit;
 }
