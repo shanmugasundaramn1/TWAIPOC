@@ -13,7 +13,6 @@ import com.thoughtworks.newsletter.dto.InteractionCountsDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import com.thoughtworks.newsletter.service.SelectedAudienceStatusService;
 import com.thoughtworks.newsletter.repository.MemberRepository;
 import com.thoughtworks.newsletter.repository.MemberInteractionRepository;
 

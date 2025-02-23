@@ -1,11 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../../App';
-import { fetchNewsletters, fetchPartners } from '../../services/api';
+import { fetchNewsletters, fetchPartners, fetchEnrichmentFailures } from '../../services/api';
 
 // Mock the API functions
 jest.mock('../../services/api', () => ({
   fetchNewsletters: jest.fn(),
-  fetchPartners: jest.fn()
+  fetchPartners: jest.fn(),
+  fetchEnrichmentFailures: jest.fn()
 }));
 
 // Mock fetch
@@ -50,6 +51,7 @@ describe('App', () => {
   beforeEach(() => {
     (fetchNewsletters as jest.Mock).mockReset();
     (fetchPartners as jest.Mock).mockReset();
+    (fetchEnrichmentFailures as jest.Mock).mockReset();
     mockFetch.mockReset();
   });
 
@@ -122,114 +124,98 @@ describe('App', () => {
     expect(screen.getByRole('button')).not.toBeDisabled();
   });
 
-  it('renders all dashboard components', async () => {
-    (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
-    (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
+  describe('Form submission', () => {
+    beforeEach(async () => {
+      (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
+      (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
+      (fetchEnrichmentFailures as jest.Mock).mockResolvedValue([]);
 
-    render(<App />);
+      render(<App />);
 
-    // Check for metrics
-    expect(screen.getByText('Open Rate')).toBeInTheDocument();
-    expect(screen.getByText('Click Rate')).toBeInTheDocument();
-    expect(screen.getByText('Bounce Rate')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(mockNewsletters[0])).toBeInTheDocument();
+      });
 
-    // Check for funnel steps
-    expect(screen.getByText('Total Targeted')).toBeInTheDocument();
-    expect(screen.getByText('Data Enriched')).toBeInTheDocument();
-    expect(screen.getByText('Delivered')).toBeInTheDocument();
-    expect(screen.getByText('Opened')).toBeInTheDocument();
-
-    // Check for data enrichment loss
-    expect(screen.getByText('Data Enrichment Loss')).toBeInTheDocument();
-    expect(screen.getByText('Invalid Emails')).toBeInTheDocument();
-    expect(screen.getByText('Missing Information')).toBeInTheDocument();
-    expect(screen.getByText('Duplicate Records')).toBeInTheDocument();
-    expect(screen.getByText('Format Errors')).toBeInTheDocument();
-
-    // Check for engagement by time
-    expect(screen.getByTestId('engagement-by-time')).toBeInTheDocument();
-  });
-
-  it('should fetch total targeted count and update funnel', async () => {
-    // Setup mocks
-    (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
-    (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ total_targeted: 5000 })
+      // Fill form
+      fireEvent.change(screen.getByRole('combobox', { name: /newsletter/i }), {
+        target: { value: mockNewsletters[0] }
+      });
+      fireEvent.change(screen.getByRole('combobox', { name: /partner/i }), {
+        target: { value: mockPartners[0] }
+      });
+      fireEvent.change(screen.getByPlaceholderText('Select date'), {
+        target: { value: '2024-03-15' }
+      });
     });
 
-    render(<App />);
+    it('should make parallel API calls and show loading states', async () => {
+      // Mock APIs with delay
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('total-targeted')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              total_targeted: 5000,
+              total_delivered: 4800,
+              total_opened: 3500,
+              data_enriched: 4500
+            })
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ failureReasonCounts: {} })
+        });
+      });
 
-    // Wait for initial data load
-    await waitFor(() => {
-      expect(screen.getByText(mockNewsletters[0])).toBeInTheDocument();
+      // Submit form
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // Check for loading states
+      await waitFor(() => {
+        expect(screen.getByText(/loading metrics/i)).toBeInTheDocument();
+      });
+
+      // Wait for data to load
+      await waitFor(() => {
+        expect(screen.getByText('5000')).toBeInTheDocument();
+        expect(screen.getByText('No Enrichment Failures')).toBeInTheDocument();
+      });
+
+      // Verify both API calls were made
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('total-targeted'));
+      expect(fetchEnrichmentFailures).toHaveBeenCalled();
     });
 
-    // Fill form
-    fireEvent.change(screen.getByRole('combobox', { name: /newsletter/i }), {
-      target: { value: mockNewsletters[0] }
-    });
-    fireEvent.change(screen.getByRole('combobox', { name: /partner/i }), {
-      target: { value: mockPartners[0] }
-    });
-    fireEvent.change(screen.getByPlaceholderText('Select date'), {
-      target: { value: '2024-03-15' }
-    });
+    it('should handle API errors independently', async () => {
+      // Mock metrics API success, enrichment API failure
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('total-targeted')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              total_targeted: 5000,
+              total_delivered: 4800,
+              total_opened: 3500,
+              data_enriched: 4500
+            })
+          });
+        }
+        return Promise.resolve({ ok: false });
+      });
 
-    // Submit form
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+      (fetchEnrichmentFailures as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    // Verify API call
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/total-targeted'));
+      // Submit form
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // Wait for APIs to resolve
+      await waitFor(() => {
+        // Metrics should show data
+        expect(screen.getByText('5000')).toBeInTheDocument();
+        // Enrichment should show error
+        expect(screen.getByText('Error Loading Enrichment Failure Widget')).toBeInTheDocument();
+      });
     });
-
-    // Verify funnel update
-    await waitFor(() => {
-      const funnelStep = screen.getByText('5000');
-      expect(funnelStep).toBeInTheDocument();
-    });
-  });
-
-  it('should handle total targeted API error', async () => {
-    // Setup mocks
-    (fetchNewsletters as jest.Mock).mockResolvedValue(mockNewsletters);
-    (fetchPartners as jest.Mock).mockResolvedValue(mockPartners);
-    mockFetch.mockResolvedValue({
-      ok: false
-    });
-
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-    render(<App />);
-
-    // Wait for initial data load and fill form
-    await waitFor(() => {
-      expect(screen.getByText(mockNewsletters[0])).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByRole('combobox', { name: /newsletter/i }), {
-      target: { value: mockNewsletters[0] }
-    });
-    fireEvent.change(screen.getByRole('combobox', { name: /partner/i }), {
-      target: { value: mockPartners[0] }
-    });
-    fireEvent.change(screen.getByPlaceholderText('Select date'), {
-      target: { value: '2024-03-15' }
-    });
-
-    // Submit form
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-
-    // Verify error handling
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Error during submission:',
-        expect.any(Error)
-      );
-    });
-
-    consoleSpy.mockRestore();
   });
 });

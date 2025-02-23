@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +42,7 @@ public class EnrichmentFailureController {
             @Parameter(description = "Name of the partner", required = true)
             @RequestParam(required = true) String partnerName,
             @Parameter(description = "PAL date in format YYYY-MM-DD", required = true)
-            @RequestParam(required = true) LocalDate palDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate palDate) {
         var failureStats = enrichmentFailureService.getFailureReasonStats(
                 newsletterName,
                 partnerName,

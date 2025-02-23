@@ -4,5 +4,7 @@ export interface LossItem {
 }
 
 export interface DataEnrichmentLossProps {
-  items: LossItem[];
+  items?: LossItem[];
+  isLoading?: boolean;
+  error?: string | null;
 }

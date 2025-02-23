@@ -4,9 +4,31 @@ import './styles.css';
 
 const COLORS = ['bg-danger', 'bg-warning', 'bg-orange', 'bg-brown'];
 
-export const DataEnrichmentLoss: React.FC<DataEnrichmentLossProps> = ({ items }) => {
+export const DataEnrichmentLoss: React.FC<DataEnrichmentLossProps> = ({ items = [], isLoading = false, error = null }) => {
+  if (error) {
+    return (
+      <div className="card border-0 shadow-sm loss-card">
+        <div className="loss-container">
+          <h3 className="card-title h6 mb-4">Data Enrichment Loss</h3>
+          <div className="text-danger">Error Loading Enrichment Failure Widget</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoading && items.length === 0) {
+    return (
+      <div className="card border-0 shadow-sm loss-card">
+        <div className="loss-container">
+          <h3 className="card-title h6 mb-4">Data Enrichment Loss</h3>
+          <div className="text-muted">No Enrichment Failures</div>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate max value for percentage calculation
-  const maxValue = Math.max(...items.map(item => item.value));
+  const maxValue = items.length > 0 ? Math.max(...items.map(item => item.value)) : 0;
 
   return (
     <div className="card border-0 shadow-sm loss-card">

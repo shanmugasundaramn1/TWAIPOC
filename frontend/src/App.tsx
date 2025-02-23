@@ -3,8 +3,7 @@ import DatePicker from 'react-datepicker';
 import { MetricsDashboard } from './components/MetricsDashboard';
 import { NewsletterFunnel } from './components/NewsletterFunnel';
 import { DataEnrichmentLoss } from './components/DataEnrichmentLoss';
-import { EngagementByTime } from './components/EngagementByTime';
-import { fetchNewsletters, fetchPartners } from './services/api';
+import { fetchNewsletters, fetchPartners, fetchEnrichmentFailures, EnrichmentFailure } from './services/api';
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 
@@ -21,6 +20,13 @@ interface FunnelStep {
   color: string;
 }
 
+const formatDateToYYYYMMDD = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 function App() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [newsletters, setNewsletters] = useState<string[]>([]);
@@ -29,12 +35,19 @@ function App() {
   const [selectedPartner, setSelectedPartner] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
   const [steps, setSteps] = useState<FunnelStep[]>([
     { label: 'Total Targeted', value: 0, color: 'blue' },
     { label: 'Data Enriched', value: 0, color: 'green' },
     { label: 'Delivered', value: 0, color: 'yellow' },
     { label: 'Opened', value: 0, color: 'purple' }
   ]);
+
+  const [enrichmentData, setEnrichmentData] = useState<EnrichmentFailure[]>([]);
+  const [enrichmentError, setEnrichmentError] = useState<string | null>(null);
+  const [enrichmentLoading, setEnrichmentLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -60,31 +73,64 @@ function App() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    try {
-      // Add the new total-targeted API call
-      const totalTargetedResponse = await fetch(
-        `http://localhost:8080/api/selected-audience-status/total-targeted?` +
-        `newsletterName=${encodeURIComponent(selectedNewsletter)}` +
-        `&date=${selectedDate ? selectedDate.toLocaleDateString('en-CA') : ''}` +
-        `&partnerName=${encodeURIComponent(selectedPartner)}`
-      );
+    setIsSubmitted(true);
+    setMetricsError(null);
+    setEnrichmentError(null);
+    setMetricsLoading(true);
+    setEnrichmentLoading(true);
 
-      if (!totalTargetedResponse.ok) {
-        throw new Error('Failed to fetch total targeted');
+    const fetchMetricsData = async () => {
+      try {
+        const formattedDate = formatDateToYYYYMMDD(selectedDate!);
+
+        // Create URL with properly encoded parameters
+        const url = new URL('http://localhost:8080/api/selected-audience-status/total-targeted');
+        url.searchParams.append('newsletterName', selectedNewsletter);
+        url.searchParams.append('date', formattedDate);
+        url.searchParams.append('partnerName', selectedPartner);
+
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch metrics data');
+        }
+
+        const data: TotalTargetedResponse = await response.json();
+        setSteps([
+          { label: 'Total Targeted', value: data.total_targeted, color: 'blue' },
+          { label: 'Data Enriched', value: data.data_enriched, color: 'green' },
+          { label: 'Delivered', value: data.total_delivered, color: 'yellow' },
+          { label: 'Opened', value: data.total_opened, color: 'purple' }
+        ]);
+      } catch (error) {
+        setMetricsError('Failed to fetch metrics data');
+        console.error('Error fetching metrics:', error);
+      } finally {
+        setMetricsLoading(false);
       }
+    };
 
-      const data: TotalTargetedResponse = await totalTargetedResponse.json();
-      
-      setSteps([
-        { label: 'Total Targeted', value: data.total_targeted, color: 'blue' },
-        { label: 'Data Enriched', value: data.data_enriched, color: 'green' },
-        { label: 'Delivered', value: data.total_delivered, color: 'yellow' },
-        { label: 'Opened', value: data.total_opened, color: 'purple' }
-      ]);
-    } catch (error) {
-      console.error('Error during submission:', error);
-    }
+    const fetchEnrichmentData = async () => {
+      try {
+        const data = await fetchEnrichmentFailures(
+          selectedNewsletter,
+          selectedPartner,
+          selectedDate
+        );
+        setEnrichmentData(data);
+      } catch (error) {
+        setEnrichmentError('Failed to fetch enrichment failures');
+        console.error('Error fetching enrichment failures:', error);
+      } finally {
+        setEnrichmentLoading(false);
+      }
+    };
+
+    // Execute both API calls in parallel
+    await Promise.all([
+      fetchMetricsData(),
+      fetchEnrichmentData()
+    ]);
   };
 
   const metrics = [
@@ -105,20 +151,36 @@ function App() {
     },
   ];
 
-  const enrichmentData = [
-    { label: 'Invalid Emails', value: 1250 },
-    { label: 'Missing Information', value: 858 },
-    { label: 'Duplicate Records', value: 450 },
-    { label: 'Format Errors', value: 225 }
-  ];
+  const renderMetricsSection = () => {
+    if (!isSubmitted) return null;
 
-  const engagementData = [
-    { timestamp: '2024-03-01T09:00:00', value: 15000 },
-    { timestamp: '2024-03-01T12:00:00', value: 17500 },
-    { timestamp: '2024-03-01T15:00:00', value: 16800 },
-    { timestamp: '2024-03-01T18:00:00', value: 18200 },
-    { timestamp: '2024-03-01T21:00:00', value: 19500 }
-  ];
+    if (metricsLoading) {
+      return (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body text-center p-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading metrics...</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (metricsError) {
+      return (
+        <div className="alert alert-danger" role="alert">
+          {metricsError}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <MetricsDashboard metrics={metrics} />
+        <NewsletterFunnel steps={steps} />
+      </>
+    );
+  };
 
   return (
     <div className="min-vh-100 bg-light">
@@ -191,25 +253,20 @@ function App() {
             
             <main>
               <section className="mb-5">
-                <MetricsDashboard 
-                  metrics={metrics}
-                />
+                {renderMetricsSection()}
               </section>
 
-              <section className="mb-5">
-                <NewsletterFunnel
-                  steps={steps}
-                />
-              </section>
-
-              <section className="row g-4">
-                <div className="col-md-6">
-                  <DataEnrichmentLoss items={enrichmentData} />
-                </div>
-                <div className="col-md-6">
-                  <EngagementByTime data={engagementData} />
-                </div>
-              </section>
+              {isSubmitted && (
+                <section className="row g-3">
+                  <div className="col-md-12">
+                    <DataEnrichmentLoss 
+                      items={enrichmentData}
+                      isLoading={enrichmentLoading}
+                      error={enrichmentError}
+                    />
+                  </div>
+                </section>
+              )}
             </main>
           </div>
         </div>
