@@ -1,0 +1,4 @@
+newsletter_id, date, potential_count, potential_selected_count
+1,2021-01-01,100,50
+2,2021-01-02,100,100
+3,2021-01-03,100,80

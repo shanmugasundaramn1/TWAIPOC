@@ -13,7 +13,7 @@ interface TotalTargetedResponse {
   total_opened: number;
   data_enriched: number;
   total_coupon_clicked: number;
-  total_bounces: number;
+  total_bounced: number;
 }
 
 interface FunnelStep {
@@ -132,7 +132,7 @@ function App() {
           },
           {
             title: 'Bounce Rate',
-            value: calculatePercentage(data.total_bounces, data.data_enriched),
+            value: calculatePercentage(data.total_bounced, data.data_enriched),
             icon: 'bounce-rate' as const,
           },
         ]);
@@ -234,6 +234,21 @@ function App() {
                 </div>
               )}
               <div className="row g-3">
+              <div className="col-md-4">
+                  <label htmlFor="partner" className="form-label">Select Partner</label>
+                  <select 
+                    id="partner" 
+                    className="form-select"
+                    value={selectedPartner}
+                    onChange={(e) => setSelectedPartner(e.target.value)}
+                    disabled={isLoading}
+                  >
+                    <option value="">Select a partner</option>
+                    {partners.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="col-md-4">
                   <label htmlFor="newsletter" className="form-label">Select Newsletter</label>
                   <select 
@@ -245,21 +260,6 @@ function App() {
                   >
                     <option value="">Select a newsletter</option>
                     {newsletters.map(name => (
-                      <option key={name} value={name}>{name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-md-4">
-                  <label htmlFor="partner" className="form-label">Select Partner</label>
-                  <select 
-                    id="partner" 
-                    className="form-select"
-                    value={selectedPartner}
-                    onChange={(e) => setSelectedPartner(e.target.value)}
-                    disabled={isLoading}
-                  >
-                    <option value="">Select a partner</option>
-                    {partners.map(name => (
                       <option key={name} value={name}>{name}</option>
                     ))}
                   </select>

@@ -163,7 +163,7 @@ describe('App', () => {
               total_opened: 3500,
               data_enriched: 4500,
               total_coupon_clicked: 2000,
-              total_bounces: 500
+              total_bounced: 500
             })
           });
         }
@@ -206,7 +206,7 @@ describe('App', () => {
               total_opened: 0,
               data_enriched: 0,
               total_coupon_clicked: 0,
-              total_bounces: 0
+              total_bounced: 0
             })
           });
         }
@@ -238,7 +238,7 @@ describe('App', () => {
               total_opened: 25,
               data_enriched: 100,
               total_coupon_clicked: -10,  // negative should be treated as 0
-              total_bounces: 20
+              total_bounced: 20
             })
           });
         }
@@ -272,7 +272,7 @@ describe('App', () => {
               total_opened: 3500,
               data_enriched: 4500,
               total_coupon_clicked: 2000,
-              total_bounces: 500
+              total_bounced: 500
             })
           });
         }

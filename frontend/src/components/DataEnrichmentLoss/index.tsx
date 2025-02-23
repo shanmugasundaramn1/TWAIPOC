@@ -2,7 +2,7 @@ import React from 'react';
 import { DataEnrichmentLossProps } from './types';
 import './styles.css';
 
-const COLORS = ['bg-danger', 'bg-warning', 'bg-orange', 'bg-brown'];
+const COLORS = ['bg-danger', 'bg-warning', 'bg-orange', 'bg-brown', 'bg-purple', 'bg-blue', 'bg-green', 'bg-teal'];
 
 export const DataEnrichmentLoss: React.FC<DataEnrichmentLossProps> = ({ items = [], isLoading = false, error = null }) => {
   if (error) {
@@ -39,7 +39,7 @@ export const DataEnrichmentLoss: React.FC<DataEnrichmentLossProps> = ({ items = 
             <div key={item.label} className="loss-item">
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <div className="d-flex align-items-center">
-                  <div className={`color-indicator ${COLORS[index]}`} />
+                  <div className={`color-indicator ${COLORS[index % COLORS.length]}`} />
                   <span className="loss-label">{item.label}</span>
                 </div>
                 <span className="loss-value">{item.value.toLocaleString()}</span>
