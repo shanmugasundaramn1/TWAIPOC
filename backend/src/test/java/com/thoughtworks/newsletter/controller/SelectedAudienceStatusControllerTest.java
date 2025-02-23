@@ -30,7 +30,7 @@ public class SelectedAudienceStatusControllerTest {
         String newsletterName = "Test Newsletter";
         LocalDate palDate = LocalDate.of(2024, 3, 20);
         String partnerName = "Test Partner";
-        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(100L, 80L, 50L, 70L);
+        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(100L, 80L, 50L, 70L, 40L, 20L);
         
         when(selectedAudienceStatusService.getTotalTargeted(newsletterName, palDate, partnerName))
                 .thenReturn(expectedResponse);
@@ -50,7 +50,7 @@ public class SelectedAudienceStatusControllerTest {
     @Test
     void shouldReturnTotalTargetedCountWithNullParameters() throws Exception {
         // Given
-        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(50L, 40L, 30L, 35L);
+        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(50L, 40L, 30L, 35L, 20L, 10L);
         when(selectedAudienceStatusService.getTotalTargeted(null, null, null))
                 .thenReturn(expectedResponse);
 
@@ -70,7 +70,7 @@ public class SelectedAudienceStatusControllerTest {
         LocalDate date = LocalDate.of(2024, 3, 20);
         String partnerName = "Test Partner";
         
-        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(10L, 8L, 5L, 7L);
+        TotalTargetedResponse expectedResponse = new TotalTargetedResponse(10L, 8L, 5L, 7L, 0L, 0L);
         
         when(selectedAudienceStatusService.getTotalTargeted(newsletterName, date, partnerName))
                 .thenReturn(expectedResponse);

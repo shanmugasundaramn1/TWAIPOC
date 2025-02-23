@@ -12,6 +12,8 @@ interface TotalTargetedResponse {
   total_delivered: number;
   total_opened: number;
   data_enriched: number;
+  total_coupon_clicked: number;
+  total_bounces: number;
 }
 
 interface FunnelStep {
@@ -102,6 +104,38 @@ function App() {
           { label: 'Delivered', value: data.total_delivered, color: 'yellow' },
           { label: 'Opened', value: data.total_opened, color: 'purple' }
         ]);
+
+        // Calculate and update metrics
+        const calculatePercentage = (numerator: number, denominator: number): string => {
+          if (denominator === 0) return '0%';
+          // Treat negative values as 0
+          const safeNumerator = numerator < 0 ? 0 : numerator;
+          const safeDenominator = denominator < 0 ? 0 : denominator;
+          return `${((safeNumerator / safeDenominator) * 100).toFixed(1)}%`;
+        };
+
+        setMetrics([
+          {
+            title: 'Total Subscribers',
+            value: data.total_delivered.toLocaleString(),
+            icon: 'subscribers' as const,
+          },
+          {
+            title: 'Open Rate',
+            value: calculatePercentage(data.total_opened, data.total_delivered),
+            icon: 'open-rate' as const,
+          },
+          {
+            title: 'Click Rate',
+            value: calculatePercentage(data.total_coupon_clicked, data.total_delivered),
+            icon: 'click-rate' as const,
+          },
+          {
+            title: 'Bounce Rate',
+            value: calculatePercentage(data.total_bounces, data.data_enriched),
+            icon: 'bounce-rate' as const,
+          },
+        ]);
       } catch (error) {
         setMetricsError('Failed to fetch metrics data');
         console.error('Error fetching metrics:', error);
@@ -133,23 +167,28 @@ function App() {
     ]);
   };
 
-  const metrics = [
+  const [metrics, setMetrics] = useState([
+    {
+      title: 'Total Subscribers',
+      value: '0',
+      icon: 'subscribers' as const,
+    },
     {
       title: 'Open Rate',
-      value: '68.7%',
+      value: '0%',
       icon: 'open-rate' as const,
     },
     {
       title: 'Click Rate',
-      value: '42.3%',
+      value: '0%',
       icon: 'click-rate' as const,
     },
     {
       title: 'Bounce Rate',
-      value: '2.4%',
+      value: '0%',
       icon: 'bounce-rate' as const,
     },
-  ];
+  ]);
 
   const renderMetricsSection = () => {
     if (!isSubmitted) return null;

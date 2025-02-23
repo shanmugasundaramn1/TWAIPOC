@@ -26,7 +26,7 @@ app:
 newsletter:
   scheduler:
     csv:
-      path: ${CSV_PATH:/tmp/newsletter/csv}
+      path: ${user.dir}/dataSource/selectedAudienceStatus
 
 file:
   base-path: ${user.dir}

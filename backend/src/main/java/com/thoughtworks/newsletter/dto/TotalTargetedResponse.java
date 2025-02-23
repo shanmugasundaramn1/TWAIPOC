@@ -12,4 +12,6 @@ public class TotalTargetedResponse {
     private Long total_delivered;
     private Long total_opened;
     private Long data_enriched;
+    private Long total_coupon_clicked;
+    private Long total_bounced;
 }

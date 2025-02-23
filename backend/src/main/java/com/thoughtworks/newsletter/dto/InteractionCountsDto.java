@@ -5,9 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class InteractionCountsDto {
     private Long delivered;
     private Long opened;
-} 
+    private Long couponClicked;
+    private Long bounced;
+}

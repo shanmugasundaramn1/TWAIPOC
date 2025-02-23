@@ -37,11 +37,12 @@ class MemberInteractionRepositoryTest {
         delivered.setDeliveryTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
         entityManager.persist(delivered);
 
-        MemberInteraction opened = new MemberInteraction();
-        opened.setNewsletterId(newsletter.getId());
-        opened.setDeliveryTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
-        opened.setOpenTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
-        entityManager.persist(opened);
+        MemberInteraction openedAndClicked = new MemberInteraction();
+        openedAndClicked.setNewsletterId(newsletter.getId());
+        openedAndClicked.setDeliveryTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        openedAndClicked.setOpenTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        openedAndClicked.setCouponClickTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        entityManager.persist(openedAndClicked);
 
         MemberInteraction noInteraction = new MemberInteraction();
         noInteraction.setNewsletterId(newsletter.getId());
@@ -57,7 +58,9 @@ class MemberInteractionRepositoryTest {
         );
 
         // Then
-        assertEquals(2L, counts.getDelivered());  // 2 with delivery timestamp
-        assertEquals(1L, counts.getOpened());     // 1 with open timestamp
+        assertEquals(2L, counts.getDelivered());    // 2 with delivery timestamp
+        assertEquals(1L, counts.getOpened());       // 1 with open timestamp
+        assertEquals(1L, counts.getCouponClicked()); // 1 with coupon click timestamp
+        assertEquals(1L, counts.getBounced());      // 3 total - 2 delivered = 1 bounced
     }
-} 
+}

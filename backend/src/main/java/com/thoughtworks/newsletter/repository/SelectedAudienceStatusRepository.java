@@ -18,7 +18,7 @@ public interface SelectedAudienceStatusRepository extends JpaRepository<Selected
 
     List<SelectedAudienceStatus> findByNewsletterNewsletterId(Long newsletterId);
 
-    @Query("SELECT COUNT(s) FROM SelectedAudienceStatus s " +
+    @Query("SELECT s.potentialSelectedCount FROM SelectedAudienceStatus s " +
            "JOIN s.newsletter n " +
            "WHERE n.newsletterName = COALESCE(:newsletterName, n.newsletterName) " +
            "AND n.palDate = COALESCE(:palDate, n.palDate) " +

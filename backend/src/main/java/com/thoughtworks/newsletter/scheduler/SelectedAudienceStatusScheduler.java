@@ -9,6 +9,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -45,10 +49,12 @@ public class SelectedAudienceStatusScheduler {
                     List<SelectedAudienceStatusCsvDto> records = csvFileProcessor.processCsvFile(file);
                     service.processAndSaveAudienceStatus(records);
 
+                    moveToProcessed(file.toPath());
+
                     // Delete the processed file
-                    if (!file.delete()) {
-                        log.warn("Could not delete processed file: {}", file.getName());
-                    }
+                    // if (!file.delete()) {
+                    //     log.warn("Could not delete processed file: {}", file.getName());
+                    // }
                 } catch (Exception e) {
                     log.error("Error processing file {}: {}", file.getName(), e.getMessage(), e);
                 }
@@ -56,5 +62,15 @@ public class SelectedAudienceStatusScheduler {
         } catch (Exception e) {
             log.error("Error in scheduler execution: {}", e.getMessage(), e);
         }
+    }
+
+    private void moveToProcessed(Path file) throws IOException {
+        Path processedDir = Path.of(properties.getScheduler().getCsv().getPath(), "processed");
+        if (!Files.exists(processedDir)) {
+            Files.createDirectories(processedDir);
+        }
+        Path targetPath = processedDir.resolve(file.getFileName());
+        Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        log.info("Moved file {} to processed directory", file.getFileName());
     }
 }

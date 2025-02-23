@@ -41,7 +41,7 @@ class SelectedAudienceStatusServiceTest {
         when(selectedAudienceStatusRepository.countByNewsletterFilters(newsletterName, date, partnerName))
                 .thenReturn(10L);
         when(memberInteractionRepository.getInteractionCounts(newsletterName, date, partnerName))
-                .thenReturn(new InteractionCountsDto(0L, 0L));
+                .thenReturn(new InteractionCountsDto(0L, 0L, 0L, 0L));
         when(memberRepository.getEnrichedCount(newsletterName, date, partnerName))
                 .thenReturn(0L);
 
@@ -68,7 +68,7 @@ class SelectedAudienceStatusServiceTest {
         when(selectedAudienceStatusRepository.countByNewsletterFilters(newsletterName, date, partnerName))
                 .thenReturn(10L);
         when(memberInteractionRepository.getInteractionCounts(newsletterName, date, partnerName))
-                .thenReturn(new InteractionCountsDto(8L, 5L));
+                .thenReturn(new InteractionCountsDto(8L, 5L, 0L, 0L));
 
         // When
         TotalTargetedResponse response = selectedAudienceStatusService.getTotalTargeted(newsletterName, date, partnerName);
@@ -91,7 +91,7 @@ class SelectedAudienceStatusServiceTest {
         when(selectedAudienceStatusRepository.countByNewsletterFilters(newsletterName, date, partnerName))
                 .thenReturn(10L);
         when(memberInteractionRepository.getInteractionCounts(newsletterName, date, partnerName))
-                .thenReturn(new InteractionCountsDto(8L, 5L));
+                .thenReturn(new InteractionCountsDto(8L, 5L, 3L, 2L));
         when(memberRepository.getEnrichedCount(newsletterName, date, partnerName))
                 .thenReturn(7L);
 
@@ -103,9 +103,63 @@ class SelectedAudienceStatusServiceTest {
         assertEquals(8L, response.getTotal_delivered());
         assertEquals(5L, response.getTotal_opened());
         assertEquals(7L, response.getData_enriched());
+        assertEquals(3L, response.getTotal_coupon_clicked());
+        assertEquals(2L, response.getTotal_bounced());
         
         verify(selectedAudienceStatusRepository).countByNewsletterFilters(newsletterName, date, partnerName);
         verify(memberInteractionRepository).getInteractionCounts(newsletterName, date, partnerName);
         verify(memberRepository).getEnrichedCount(newsletterName, date, partnerName);
     }
-} 
+
+    @Test
+    void shouldHandleZeroValuesForCouponClickedAndBounced() {
+        // Given
+        String newsletterName = "Test Newsletter";
+        LocalDate date = LocalDate.of(2024, 3, 20);
+        String partnerName = "Test Partner";
+        
+        when(selectedAudienceStatusRepository.countByNewsletterFilters(newsletterName, date, partnerName))
+                .thenReturn(10L);
+        when(memberInteractionRepository.getInteractionCounts(newsletterName, date, partnerName))
+                .thenReturn(new InteractionCountsDto(0L, 0L, 0L, 0L));
+        when(memberRepository.getEnrichedCount(newsletterName, date, partnerName))
+                .thenReturn(0L);
+
+        // When
+        TotalTargetedResponse response = selectedAudienceStatusService.getTotalTargeted(newsletterName, date, partnerName);
+
+        // Then
+        assertEquals(10L, response.getTotal_targeted());
+        assertEquals(0L, response.getTotal_delivered());
+        assertEquals(0L, response.getTotal_opened());
+        assertEquals(0L, response.getData_enriched());
+        assertEquals(0L, response.getTotal_coupon_clicked());
+        assertEquals(0L, response.getTotal_bounced());
+    }
+
+    @Test
+    void shouldHandleNullValuesForCouponClickedAndBounced() {
+        // Given
+        String newsletterName = "Test Newsletter";
+        LocalDate date = LocalDate.of(2024, 3, 20);
+        String partnerName = "Test Partner";
+        
+        when(selectedAudienceStatusRepository.countByNewsletterFilters(newsletterName, date, partnerName))
+                .thenReturn(10L);
+        when(memberInteractionRepository.getInteractionCounts(newsletterName, date, partnerName))
+                .thenReturn(new InteractionCountsDto(null, null, null, null));
+        when(memberRepository.getEnrichedCount(newsletterName, date, partnerName))
+                .thenReturn(null);
+
+        // When
+        TotalTargetedResponse response = selectedAudienceStatusService.getTotalTargeted(newsletterName, date, partnerName);
+
+        // Then
+        assertEquals(10L, response.getTotal_targeted());
+        assertEquals(0L, response.getTotal_delivered());
+        assertEquals(0L, response.getTotal_opened());
+        assertEquals(0L, response.getData_enriched());
+        assertEquals(0L, response.getTotal_coupon_clicked());
+        assertEquals(0L, response.getTotal_bounced());
+    }
+}

@@ -69,9 +69,11 @@ public class SelectedAudienceStatusService {
         
         return new TotalTargetedResponse(
             totalTargeted,
-            interactionCounts.getDelivered() == null ? 0 : interactionCounts.getDelivered(),
-            interactionCounts.getOpened() == null ? 0 : interactionCounts.getOpened(),
-            enrichedCount == null ? 0 : enrichedCount
+            interactionCounts.getDelivered() == null ? 0L : interactionCounts.getDelivered(),
+            interactionCounts.getOpened() == null ? 0L : interactionCounts.getOpened(),
+            enrichedCount == null ? 0L : enrichedCount,
+            interactionCounts.getCouponClicked() == null ? 0L : interactionCounts.getCouponClicked(),
+            interactionCounts.getBounced() == null ? 0L : interactionCounts.getBounced()
         );
     }
 }

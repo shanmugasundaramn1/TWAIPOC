@@ -12,7 +12,9 @@ public interface MemberInteractionRepository extends JpaRepository<MemberInterac
 
     @Query("SELECT new com.thoughtworks.newsletter.dto.InteractionCountsDto(" +
            "COUNT(DISTINCT CASE WHEN mi.deliveryTimestamp IS NOT NULL THEN mi.id ELSE null END), " +
-           "COUNT(DISTINCT CASE WHEN mi.openTimestamp IS NOT NULL THEN mi.id ELSE null END)) " +
+           "COUNT(DISTINCT CASE WHEN mi.openTimestamp IS NOT NULL THEN mi.id ELSE null END), " +
+           "COUNT(DISTINCT CASE WHEN mi.couponClickTimestamp IS NOT NULL THEN mi.id ELSE null END), " +
+           "COUNT(DISTINCT mi.id) - COUNT(DISTINCT CASE WHEN mi.deliveryTimestamp IS NOT NULL THEN mi.id ELSE null END)) " +
            "FROM Newsletter n " +
            "INNER JOIN MemberInteraction mi ON mi.newsletterId = n.id " +
            "WHERE n.newsletterName = COALESCE(:newsletterName, n.newsletterName) " +

@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import lombok.SneakyThrows;
@@ -45,10 +45,15 @@ class SelectedAudienceStatusSchedulerTest {
     @TempDir
     Path tempDir;
 
+    private Path processedDir;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         when(properties.getScheduler()).thenReturn(scheduler);
         when(scheduler.getCsv()).thenReturn(csv);
+        when(csv.getPath()).thenReturn(tempDir.toString());
+        processedDir = tempDir.resolve("processed");
+        Files.createDirectory(processedDir);
         statusScheduler = new SelectedAudienceStatusScheduler(properties, csvFileProcessor, service);
     }
 
@@ -58,12 +63,18 @@ class SelectedAudienceStatusSchedulerTest {
         return targetPath;
     }
 
+    private void verifyFileMovedToProcessed(String fileName) throws IOException {
+        assertTrue(Files.exists(processedDir.resolve(fileName)), 
+            "File should exist in processed directory: " + fileName);
+        assertFalse(Files.exists(tempDir.resolve(fileName)), 
+            "File should not exist in source directory: " + fileName);
+    }
+
     @Test
     void shouldProcessValidCsvFiles() throws IOException {
         // Given
-        when(csv.getPath()).thenReturn(tempDir.toString());
-        
-        createTestFile("valid_audience_status.csv", "content");
+        String fileName = "valid_audience_status.csv";
+        createTestFile(fileName, "content");
         List<SelectedAudienceStatusCsvDto> mockRecords = List.of(new SelectedAudienceStatusCsvDto());
         when(csvFileProcessor.processCsvFile(any(File.class))).thenReturn(mockRecords);
 
@@ -73,10 +84,11 @@ class SelectedAudienceStatusSchedulerTest {
         // Then
         verify(csvFileProcessor).processCsvFile(any(File.class));
         verify(service).processAndSaveAudienceStatus(mockRecords);
+        verifyFileMovedToProcessed(fileName);
     }
 
     @Test
-    void shouldHandleInvalidDirectory() throws FileNotFoundException {
+    void shouldHandleInvalidDirectory() throws IOException {
         // Given
         when(csv.getPath()).thenReturn("/invalid/path");
 
@@ -89,10 +101,7 @@ class SelectedAudienceStatusSchedulerTest {
     }
 
     @Test
-    void shouldHandleEmptyDirectory() throws FileNotFoundException {
-        // Given
-        when(csv.getPath()).thenReturn(tempDir.toString());
-
+    void shouldHandleEmptyDirectory() throws IOException {
         // When
         statusScheduler.processAudienceStatusFiles();
 
@@ -104,8 +113,8 @@ class SelectedAudienceStatusSchedulerTest {
     @Test
     void shouldHandleProcessingError() throws IOException {
         // Given
-        when(csv.getPath()).thenReturn(tempDir.toString());
-        createTestFile("error.csv", "content");
+        String fileName = "error.csv";
+        createTestFile(fileName, "content");
         when(csvFileProcessor.processCsvFile(any(File.class)))
             .thenThrow(new IllegalArgumentException("Processing error"));
 
@@ -115,13 +124,15 @@ class SelectedAudienceStatusSchedulerTest {
         // Then
         verify(csvFileProcessor).processCsvFile(any(File.class));
         verify(service, never()).processAndSaveAudienceStatus(any());
+        assertTrue(Files.exists(tempDir.resolve(fileName)), 
+            "File should remain in source directory on error");
+        assertFalse(Files.exists(processedDir.resolve(fileName)),
+            "File should not be moved to processed directory on error");
     }
 
     @Test
     void shouldProcessMultipleFiles() throws IOException {
         // Given
-        when(csv.getPath()).thenReturn(tempDir.toString());
-
         createTestFile("file1.csv", "content1");
         createTestFile("file2.csv", "content2");
         createTestFile("notcsv.txt", "not a csv");
@@ -135,20 +146,43 @@ class SelectedAudienceStatusSchedulerTest {
         // Then
         verify(csvFileProcessor, times(2)).processCsvFile(any(File.class));
         verify(service, times(2)).processAndSaveAudienceStatus(mockRecords);
+        
+        verifyFileMovedToProcessed("file1.csv");
+        verifyFileMovedToProcessed("file2.csv");
+        assertTrue(Files.exists(tempDir.resolve("notcsv.txt")), 
+            "Non-CSV file should remain in source directory");
+        assertFalse(Files.exists(processedDir.resolve("notcsv.txt")),
+            "Non-CSV file should not be moved to processed directory");
     }
 
     @Test
-    @SneakyThrows
-    void shouldHandleFileNotFoundError() throws FileNotFoundException, IOException {
+    void shouldHandleProcessedDirectoryCreation() throws IOException {
         // Given
-        String csvPath = tempDir.toString();
-        doReturn(csvPath).when(csv).getPath();
+        Files.delete(processedDir);
+        
+        String fileName = "test.csv";
+        createTestFile(fileName, "content");
+        List<SelectedAudienceStatusCsvDto> mockRecords = List.of(new SelectedAudienceStatusCsvDto());
+        when(csvFileProcessor.processCsvFile(any(File.class))).thenReturn(mockRecords);
 
-        // Create test CSV file path (but don't create the file)
-        createTestFile("valid_audience_status.csv", "");
+        // When
+        statusScheduler.processAudienceStatusFiles();
 
-        doThrow(new FileNotFoundException("File not found"))
-                .when(csvFileProcessor).processCsvFile(any(File.class));
+        // Then
+        verify(csvFileProcessor).processCsvFile(any(File.class));
+        verify(service).processAndSaveAudienceStatus(mockRecords);
+        assertTrue(Files.exists(processedDir), "Processed directory should be created");
+        verifyFileMovedToProcessed(fileName);
+    }
+
+    @Test
+    void shouldHandleFileNotFoundError() throws IOException {
+        // Given
+        String fileName = "valid_audience_status.csv";
+        createTestFile(fileName, "");
+
+        when(csvFileProcessor.processCsvFile(any(File.class)))
+                .thenThrow(new FileNotFoundException("File not found"));
 
         // When
         statusScheduler.processAudienceStatusFiles();
@@ -156,5 +190,9 @@ class SelectedAudienceStatusSchedulerTest {
         // Then
         verify(csvFileProcessor).processCsvFile(any(File.class));
         verify(service, never()).processAndSaveAudienceStatus(any());
+        assertTrue(Files.exists(tempDir.resolve(fileName)), 
+            "File should remain in source directory on error");
+        assertFalse(Files.exists(processedDir.resolve(fileName)),
+            "File should not be moved to processed directory on error");
     }
 }
